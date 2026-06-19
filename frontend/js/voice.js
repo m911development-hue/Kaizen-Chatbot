@@ -224,12 +224,12 @@ const VoiceModule = {
                 if (transcribedText) {
                     if (inputField) {
                         inputField.value = transcribedText;
-                        if (typeof ChatModule !== 'undefined' && ChatModule.autoResize) {
-                            ChatModule.autoResize();
+                        if (typeof ChatModule !== 'undefined') {
+                            if (ChatModule.autoResize) ChatModule.autoResize();
+                            // Automatically submit the message
+                            ChatModule.sendMessage();
                         }
-                        inputField.focus();
                     }
-                    showToast('Recording stopped. Review your text and click Send.', 'info', 3000);
                 } else {
                     showToast('No speech detected. Please try again.', 'warning', 3000);
                 }
