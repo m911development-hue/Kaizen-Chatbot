@@ -364,8 +364,8 @@ const VoiceModule = {
                         content: chatData.response,
                     });
                     
-                    // Speak response using browser speech synthesis
-                    this.playBrowserTTS(chatData.response);
+                    // Speak response using Edge TTS instead of robotic browser voice
+                    this.synthesizeAndPlay(chatData.response);
                     
                 } catch (chatErr) {
                     ChatModule.hideTypingIndicator();
