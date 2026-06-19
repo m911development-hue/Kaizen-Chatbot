@@ -125,8 +125,12 @@ async def voice_chat(audio: UploadFile = File(...)):
         ai_text = result["response"]
         sources = result["sources"]
 
+        # Clean markdown from text for TTS so it doesn't read out symbols
+        import re
+        clean_text = re.sub(r'[*#`_]', '', ai_text).strip()
+
         # Step 3 — Synthesize AI response to audio
-        audio_bytes = await voice_service.text_to_speech(ai_text)
+        audio_bytes = await voice_service.text_to_speech(clean_text)
         audio_b64 = base64.b64encode(audio_bytes).decode("utf-8")
 
         logger.info("Voice chat — response generated (%d chars, %d bytes audio)", len(ai_text), len(audio_bytes))
