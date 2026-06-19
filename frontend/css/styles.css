@@ -547,6 +547,68 @@ body {
     letter-spacing: 0.02em;
 }
 
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+}
+
+/* Stop Voice Button */
+.btn-stop-voice {
+    height: 40px;
+    padding: 0 1rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: var(--transition-fast);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-5px);
+}
+
+.btn-stop-voice.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.btn-stop-voice:hover {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.02);
+}
+
+.btn-stop-voice:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: transparent;
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+/* TTS Loader */
+.tts-loader {
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
 /* Clear Chat Button */
 .btn-clear-chat {
     width: 40px;
@@ -561,7 +623,6 @@ body {
     justify-content: center;
     transition: var(--transition-fast);
     flex-shrink: 0;
-    margin-left: auto; /* Push it to the right */
 }
 
 .btn-clear-chat:hover {

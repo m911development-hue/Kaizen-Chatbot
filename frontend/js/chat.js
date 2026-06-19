@@ -160,6 +160,11 @@ const ChatModule = {
                 content: data.response,
             });
 
+            // Auto-play TTS for every text response
+            if (typeof VoiceModule !== 'undefined') {
+                VoiceModule.synthesizeAndPlay(data.response);
+            }
+
 
         } catch (error) {
             this.hideTypingIndicator();

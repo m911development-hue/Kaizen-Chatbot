@@ -54,17 +54,17 @@ async def transcribe_audio(audio: UploadFile = File(...)):
 
 
 # ──────────────────────────────────────────────
-# POST /api/voice/synthesize
+# POST /api/voice/tts
 # ──────────────────────────────────────────────
 
 @router.post(
-    "/synthesize",
-    summary="Synthesize text into speech audio",
+    "/tts",
+    summary="Synthesize text into speech audio using Edge TTS",
     responses={400: {"model": ErrorResponse}},
 )
 async def synthesize_speech(request: VoiceChatRequest):
     """
-    Convert a text string into natural-sounding speech.
+    Convert a text string into natural-sounding speech via Microsoft Edge TTS.
     Returns raw MP3 audio bytes.
     """
     try:

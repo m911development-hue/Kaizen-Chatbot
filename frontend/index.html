@@ -78,15 +78,27 @@
                     <p class="header-subtitle">Always ready to help you with information about Kaizen.</p>
                 </div>
 
-                <!-- Clear Chat Button -->
-                <button class="btn-clear-chat" id="clearChatBtn" aria-label="Clear chat" title="Clear Conversation">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                </button>
+                <div class="header-actions">
+                    <!-- Stop Voice Button -->
+                    <button class="btn-stop-voice" id="globalStopVoiceBtn" aria-label="Stop voice" title="Stop Voice Playback" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+                        </svg>
+                        <span class="stop-text">Stop Voice</span>
+                        <!-- Loading spinner for TTS -->
+                        <div class="tts-loader hidden" id="ttsLoader"></div>
+                    </button>
+
+                    <!-- Clear Chat Button -->
+                    <button class="btn-clear-chat" id="clearChatBtn" aria-label="Clear chat" title="Clear Conversation">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                    </button>
+                </div>
             </header>
 
             <!-- Chat Container -->

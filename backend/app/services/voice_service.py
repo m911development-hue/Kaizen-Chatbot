@@ -18,8 +18,12 @@ from backend.app.config import settings
 logger = logging.getLogger("kaizen.voice_service")
 
 
+import edge_tts
+
+# Singleton instance will be created at the end
+
 class VoiceService:
-    """Handles audio transcription and speech synthesis via OpenAI."""
+    """Handles audio transcription (Whisper) and speech synthesis (Edge TTS)."""
 
     def __init__(self) -> None:
         self.client = AsyncOpenAI(
@@ -27,8 +31,7 @@ class VoiceService:
             base_url=settings.OPENAI_API_BASE,
         )
         self.stt_model = settings.STT_MODEL      # whisper-1
-        self.tts_model = settings.TTS_MODEL       # tts-1-hd
-        self.tts_voice = settings.TTS_VOICE       # nova
+        self.tts_voice = settings.TTS_VOICE      # en-IN-PrabhatNeural
 
     # ------------------------------------------------------------------ #
     #  Speech-to-Text                                                     #
@@ -37,21 +40,12 @@ class VoiceService:
     async def speech_to_text(self, audio_file: UploadFile) -> str:
         """
         Transcribe an uploaded audio file using OpenAI Whisper.
-
-        Supported formats: mp3, mp4, mpeg, mpga, m4a, wav, webm, ogg.
-
-        Args:
-            audio_file: The uploaded audio file from the request.
-
-        Returns:
-            Transcribed text string.
         """
         # Read the raw audio bytes
         audio_bytes = await audio_file.read()
         if not audio_bytes:
             raise HTTPException(status_code=400, detail="Audio file is empty.")
 
-        # Write to a temporary file (Whisper API requires a file-like object)
         suffix = Path(audio_file.filename or "audio.webm").suffix or ".webm"
         tmp_path: str | None = None
 
@@ -62,7 +56,6 @@ class VoiceService:
                 tmp.write(audio_bytes)
                 tmp_path = tmp.name
 
-            # Call OpenAI Whisper API
             with open(tmp_path, "rb") as f:
                 transcript = await self.client.audio.transcriptions.create(
                     model=self.stt_model,
@@ -74,28 +67,21 @@ class VoiceService:
             return transcript.strip() if isinstance(transcript, str) else transcript.text.strip()
 
         except HTTPException:
-            raise  # re-raise our own validation errors
+            raise
         except Exception as exc:
             logger.error("Speech-to-text failed: %s", exc)
-            raise HTTPException(
-                status_code=500,
-                detail=f"Speech-to-text failed: {exc}",
-            ) from exc
+            raise HTTPException(status_code=500, detail=f"Speech-to-text failed: {exc}") from exc
         finally:
-            # Always clean up the temp file
             if tmp_path and os.path.exists(tmp_path):
                 os.unlink(tmp_path)
 
     # ------------------------------------------------------------------ #
-    #  Text-to-Speech                                                     #
+    #  Text-to-Speech (Edge TTS)                                          #
     # ------------------------------------------------------------------ #
 
     async def text_to_speech(self, text: str) -> bytes:
         """
-        Convert text to natural-sounding speech using OpenAI TTS.
-
-        Uses the HD model (tts-1-hd) with the 'nova' voice for
-        a warm, human-like output.
+        Convert text to natural-sounding speech using Microsoft Edge TTS.
 
         Args:
             text: The text to synthesize.
@@ -107,17 +93,15 @@ class VoiceService:
             raise HTTPException(status_code=400, detail="Text for synthesis cannot be empty.")
 
         try:
-            response = await self.client.audio.speech.create(
-                model=self.tts_model,
-                voice=self.tts_voice,
-                input=text,
-                response_format="mp3",
-            )
-
-            # Read the binary content from the streaming response
-            audio_bytes = response.content
-            logger.info("Synthesized %d chars → %d bytes of audio", len(text), len(audio_bytes))
-            return audio_bytes
+            communicate = edge_tts.Communicate(text, self.tts_voice)
+            
+            audio_data = bytearray()
+            async for chunk in communicate.stream():
+                if chunk["type"] == "audio":
+                    audio_data.extend(chunk["data"])
+                    
+            logger.info("Synthesized %d chars → %d bytes of audio via Edge TTS", len(text), len(audio_data))
+            return bytes(audio_data)
 
         except Exception as exc:
             logger.error("Text-to-speech failed: %s", exc)
@@ -125,7 +109,6 @@ class VoiceService:
                 status_code=500,
                 detail=f"Text-to-speech failed: {exc}",
             ) from exc
-
 
 # Singleton instance
 voice_service = VoiceService()

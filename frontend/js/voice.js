@@ -383,8 +383,16 @@ const VoiceModule = {
     // ══════════════════════════════════════════════════════════════════════
 
     async synthesizeAndPlay(text) {
+        // Show global TTS loader and enable stop button
+        const globalStopBtn = document.getElementById('globalStopVoiceBtn');
+        const ttsLoader = document.getElementById('ttsLoader');
+        if (globalStopBtn) {
+            globalStopBtn.classList.add('active');
+            globalStopBtn.removeAttribute('disabled');
+        }
+        if (ttsLoader) ttsLoader.classList.remove('hidden');
         try {
-            const response = await apiRequest('/api/voice/synthesize', {
+            const response = await apiRequest('/api/voice/tts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: text }),
@@ -400,6 +408,10 @@ const VoiceModule = {
         } catch (error) {
             console.warn('Backend TTS failed, falling back to browser SpeechSynthesis:', error.message);
             this.playBrowserTTS(text);
+        } finally {
+            // Hide global TTS loader when audio starts or fails
+            const ttsLoader = document.getElementById('ttsLoader');
+            if (ttsLoader) ttsLoader.classList.add('hidden');
         }
     },
 
@@ -428,6 +440,12 @@ const VoiceModule = {
 
             const sidebar = document.getElementById('sidebar');
             if (sidebar) sidebar.classList.add('speaking');
+            
+            const globalStopBtn = document.getElementById('globalStopVoiceBtn');
+            if (globalStopBtn) {
+                globalStopBtn.classList.add('active');
+                globalStopBtn.removeAttribute('disabled');
+            }
 
             this.showAudioControls();
             const progressBar = document.getElementById('audioProgressBar');
@@ -444,11 +462,13 @@ const VoiceModule = {
                 if (progressBar) progressBar.style.width = '100%';
                 if (sidebar) sidebar.classList.remove('speaking');
                 this.hideAudioControls();
+                this.hideGlobalStopVoice();
             };
 
             utterance.onerror = () => {
                 if (sidebar) sidebar.classList.remove('speaking');
                 this.hideAudioControls();
+                this.hideGlobalStopVoice();
             };
 
             this.currentUtterance = utterance;
