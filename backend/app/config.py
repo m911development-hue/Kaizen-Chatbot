@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     CHAT_MODEL: str = "gpt-4o-mini"                    # LLM for chat responses
     EMBEDDING_MODEL: str = "text-embedding-3-small"    # Embedding model for RAG
     TTS_MODEL: str = "edge-tts"                        # Switched to Microsoft Edge TTS
-    TTS_VOICE: str = "en-IN-PrabhatNeural"             # Indian Male voice for Edge TTS
+    TTS_VOICE: str = "hi-IN-MadhurNeural"              # Premium Hindi Male voice for Edge TTS
     STT_MODEL: str = "whisper-1"                       # Speech-to-text (Whisper) model
 
     # --- Document Chunking ---
