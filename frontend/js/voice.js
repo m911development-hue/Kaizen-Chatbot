@@ -31,7 +31,7 @@ const VoiceModule = {
             this.recognition = new SpeechRecognition();
             this.recognition.continuous = true;
             this.recognition.interimResults = true;
-            this.recognition.lang = 'en-US';
+            this.recognition.lang = 'hi-IN';
 
             this.recognition.onresult = (event) => {
                 let interimTranscript = '';
