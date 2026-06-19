@@ -1544,13 +1544,20 @@ body {
 
     .app-container {
         grid-template-columns: 1fr;
-        grid-template-rows: 1fr; /* Full height for chat, no top image */
+        grid-template-rows: 50dvh 1fr; /* Image takes half screen top, rest is chat */
         height: 100dvh;
     }
 
-    /* Hide sidebar completely on mobile to save space */
+    /* Sidebar: displays on top, no longer slide drawer */
     .sidebar {
-        display: none !important;
+        position: relative;
+        transform: none !important;
+        width: 100% !important;
+        height: 50dvh !important;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: none !important;
+        display: flex !important;
     }
 
     .sidebar::before {
@@ -1581,7 +1588,7 @@ body {
 
     /* Smaller padding and flex fill */
     .main-area {
-        height: 100dvh !important;
+        height: 50dvh !important;
     }
 
     .messages {
@@ -1609,8 +1616,8 @@ body {
         right: 1.5rem;
     }
 
-    /* Hide redundant avatar in welcome message on mobile to save space */
-    .welcome-avatar {
+    /* Hide the entire welcome screen (avatar + text) on mobile to save space */
+    .welcome-screen {
         display: none !important;
     }
 }
@@ -1620,15 +1627,15 @@ body {
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
     .app-container {
-        grid-template-rows: 1fr; /* Full height for chat */
+        grid-template-rows: 50dvh 1fr; /* Image takes half screen top, rest is chat */
     }
 
     .sidebar {
-        display: none !important;
+        height: 50dvh !important;
     }
 
     .main-area {
-        height: 100dvh !important;
+        height: 50dvh !important;
     }
 
     .sidebar-content-bottom {
