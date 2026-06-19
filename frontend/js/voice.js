@@ -228,8 +228,6 @@ const VoiceModule = {
             }
 
             if (transcribedText) {
-                // Flag so sendMessage() knows to play voice response
-                this._pendingVoiceResponse = true;
                 showToast('Recording stopped. Review your text and click Send.', 'info', 3000);
             } else {
                 showToast('No speech detected. Please try again.', 'warning', 3000);

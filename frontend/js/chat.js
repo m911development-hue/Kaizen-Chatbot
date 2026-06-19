@@ -101,9 +101,6 @@ const ChatModule = {
             VoiceModule.voiceBtn.classList.remove('recording');
             KaizenApp.isRecording = false;
             
-            // Mark as voice input
-            VoiceModule._pendingVoiceResponse = true;
-            
             // Clear input immediately so the user sees it's processed
             this.messageInput.value = '';
             this.messageInput.style.height = 'auto';
@@ -163,11 +160,7 @@ const ChatModule = {
                 content: data.response,
             });
 
-            // Play voice response ONLY if the message came from voice input
-            if (typeof VoiceModule !== 'undefined' && VoiceModule._pendingVoiceResponse) {
-                VoiceModule._pendingVoiceResponse = false;
-                VoiceModule.synthesizeAndPlay(data.response);
-            }
+
         } catch (error) {
             this.hideTypingIndicator();
             showToast(error.message, 'error');
