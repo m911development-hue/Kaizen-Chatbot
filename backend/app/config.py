@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     CHAT_MODEL: str = "gpt-4o-mini"                    # LLM for chat responses
     EMBEDDING_MODEL: str = "text-embedding-3-small"    # Embedding model for RAG
     TTS_MODEL: str = "tts-1-hd"                        # HD text-to-speech model (human-like voice)
-    TTS_VOICE: str = "nova"                            # Voice preset for TTS
+    TTS_VOICE: str = "shimmer"                         # Clear female voice preset for TTS
     STT_MODEL: str = "whisper-1"                       # Speech-to-text (Whisper) model
 
     # --- Document Chunking ---
