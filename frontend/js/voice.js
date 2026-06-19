@@ -116,12 +116,25 @@ const VoiceModule = {
                 },
             });
 
-            // Determine a supported MIME type
-            const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-                ? 'audio/webm;codecs=opus'
-                : 'audio/webm';
-
-            this.mediaRecorder = new MediaRecorder(stream, { mimeType });
+            // Determine a supported MIME type dynamically (fixes iOS/Safari issues)
+            const types = [
+                'audio/webm;codecs=opus',
+                'audio/webm',
+                'audio/mp4',
+                'audio/m4a',
+                'audio/aac',
+                'audio/ogg'
+            ];
+            let mimeType = '';
+            for (let t of types) {
+                if (MediaRecorder.isTypeSupported(t)) {
+                    mimeType = t;
+                    break;
+                }
+            }
+            
+            const options = mimeType ? { mimeType } : {};
+            this.mediaRecorder = new MediaRecorder(stream, options);
             this.audioChunks = [];
 
             this.mediaRecorder.ondataavailable = (e) => {

@@ -1544,7 +1544,7 @@ body {
 
     .app-container {
         grid-template-columns: 1fr;
-        grid-template-rows: 120px 1fr; /* Image takes 120px top, rest is chat */
+        grid-template-rows: 50dvh 1fr; /* Image takes half screen top, rest is chat */
         height: 100dvh;
     }
 
@@ -1553,7 +1553,7 @@ body {
         position: relative;
         transform: none !important;
         width: 100% !important;
-        height: 120px !important;
+        height: 50dvh !important;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
         box-shadow: none !important;
@@ -1588,7 +1588,7 @@ body {
 
     /* Smaller padding and flex fill */
     .main-area {
-        height: calc(100dvh - 120px) !important;
+        height: 50dvh !important;
     }
 
     .messages {
@@ -1622,15 +1622,15 @@ body {
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
     .app-container {
-        grid-template-rows: 100px 1fr; /* even smaller top header on tiny phones */
+        grid-template-rows: 50dvh 1fr; /* Image takes half screen top, rest is chat */
     }
 
     .sidebar {
-        height: 100px !important;
+        height: 50dvh !important;
     }
 
     .main-area {
-        height: calc(100dvh - 100px) !important;
+        height: 50dvh !important;
     }
 
     .sidebar-content-bottom {
