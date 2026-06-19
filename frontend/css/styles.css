@@ -1612,12 +1612,28 @@ body {
     }
 
     .voice-indicator-container {
-        left: 1.5rem;
-        right: 1.5rem;
+        left: 1rem;
+        right: 1rem;
+        padding: 0.6rem 0.8rem;
+        gap: 0.5rem;
     }
 
-    /* Hide the entire welcome screen (avatar + text) on mobile to save space */
-    .welcome-screen {
+    .voice-status-text {
+        font-size: var(--font-size-xs);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100px;
+    }
+
+    .btn-stop-listening {
+        padding: 0.4rem 0.6rem;
+        font-size: var(--font-size-xs);
+    }
+
+    /* Hide the chat header and welcome message on mobile to maximize chat space */
+    .chat-header,
+    .welcome-container {
         display: none !important;
     }
 }
