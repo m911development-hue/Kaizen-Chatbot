@@ -160,6 +160,11 @@ const ChatModule = {
                 content: data.response,
             });
 
+            // Automatically play voice for text input
+            if (typeof VoiceModule !== 'undefined') {
+                VoiceModule.synthesizeAndPlay(data.response);
+            }
+
 
         } catch (error) {
             this.hideTypingIndicator();
