@@ -1,5 +1,7 @@
 # 🤖 Kaizen AI — Intelligent Knowledge Assistant
 
+**🔴 Live Demo: [https://kaizen-chatbot-k5vv.onrender.com](https://kaizen-chatbot-k5vv.onrender.com)**
+
 A production-ready AI chatbot that answers questions based on your uploaded PDF documents. Features text and voice conversations, powered by OpenAI and a RAG (Retrieval-Augmented Generation) pipeline.
 
 ![Kaizen AI](frontend/assets/kaizen-avatar.png)
