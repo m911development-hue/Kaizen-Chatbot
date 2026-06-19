@@ -93,7 +93,8 @@ class VoiceService:
             raise HTTPException(status_code=400, detail="Text for synthesis cannot be empty.")
 
         try:
-            communicate = edge_tts.Communicate(text, self.tts_voice)
+            # The user requested to increase the voice speed by 0.2 (20%)
+            communicate = edge_tts.Communicate(text, self.tts_voice, rate="+20%")
             
             audio_data = bytearray()
             async for chunk in communicate.stream():
