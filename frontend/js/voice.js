@@ -108,22 +108,40 @@ const VoiceModule = {
 
     async startRecording() {
         try {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            // On mobile, prefer native SpeechRecognition and skip MediaRecorder 
+            // to avoid microphone lock conflicts (which causes the Google STT error).
+            if (isMobile && this.recognition) {
+                this.recognitionTranscript = '';
+                this.liveTranscript = '';
+                const inputField = document.getElementById('messageInput');
+                if (inputField) inputField.value = '';
+                
+                this.recognition.start();
+                this.isRecording = true;
+                this.voiceBtn.classList.add('recording');
+                KaizenApp.isRecording = true;
+                
+                const voiceInd = document.getElementById('voiceIndicator');
+                if (voiceInd) {
+                    voiceInd.classList.remove('processing');
+                    voiceInd.classList.add('active');
+                    const statusText = voiceInd.querySelector('.voice-status-text');
+                    if (statusText) statusText.textContent = 'Listening...';
+                }
+                showToast('Listening...', 'info', 2000);
+                return;
+            }
+
+            // Desktop flow: Use MediaRecorder + SpeechRecognition
             const stream = await navigator.mediaDevices.getUserMedia({
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    sampleRate: 44100,
-                },
+                audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 }
             });
 
             // Determine a supported MIME type dynamically (fixes iOS/Safari issues)
             const types = [
-                'audio/webm;codecs=opus',
-                'audio/webm',
-                'audio/mp4',
-                'audio/m4a',
-                'audio/aac',
-                'audio/ogg'
+                'audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/m4a', 'audio/aac', 'audio/ogg'
             ];
             let mimeType = '';
             for (let t of types) {
@@ -142,37 +160,22 @@ const VoiceModule = {
             };
 
             this.mediaRecorder.onstop = () => {
-                // Release mic
                 stream.getTracks().forEach((t) => t.stop());
-                // Only auto-process if NOT a manual stop
-                // (manual stop puts text in input for user to review & send)
                 if (this._manualStop) {
                     this._manualStop = false;
-                    // Don't process — user will click Send manually
                 } else {
                     this.processRecording();
                 }
             };
 
-            // Start SpeechRecognition in parallel for fallback
             if (this.recognition) {
                 this.recognitionTranscript = '';
                 this.liveTranscript = '';
                 const inputField = document.getElementById('messageInput');
-                if (inputField) {
-                    inputField.value = '';
-                    if (typeof ChatModule !== 'undefined' && ChatModule.autoResize) {
-                        ChatModule.autoResize();
-                    }
-                }
-                try {
-                    this.recognition.start();
-                } catch (e) {
-                    console.warn('SpeechRecognition start error:', e);
-                }
+                if (inputField) inputField.value = '';
+                try { this.recognition.start(); } catch (e) { console.warn('SpeechRecognition start error:', e); }
             }
 
-            // Show voice indicator overlay
             const voiceInd = document.getElementById('voiceIndicator');
             if (voiceInd) {
                 voiceInd.classList.remove('processing');
@@ -188,26 +191,19 @@ const VoiceModule = {
 
             showToast('Recording… Click again to stop.', 'info', 2000);
         } catch (error) {
-            if (error.name === 'NotAllowedError') {
-                showToast(
-                    'Microphone access denied. Please allow microphone access in your browser settings.',
-                    'error'
-                );
-            } else if (error.name === 'NotFoundError') {
-                showToast(
-                    'No microphone found. Please connect a microphone and try again.',
-                    'error'
-                );
-            } else {
-                showToast('Could not access microphone. Please check your device.', 'error');
-                console.error('Microphone error:', error);
-            }
+            showToast('Could not access microphone. Please check permissions.', 'error');
+            console.error('Microphone error:', error);
         }
     },
 
     stopRecording() {
-        if (this.mediaRecorder && this.isRecording) {
-            // Stop SpeechRecognition
+        if (this.isRecording) {
+            this.isRecording = false;
+            this.voiceBtn.classList.remove('recording');
+            this.voiceBtn.classList.remove('processing');
+            KaizenApp.isRecording = false;
+            this.hideVoiceIndicator();
+
             if (this.recognition) {
                 try {
                     this.recognition.stop();
@@ -216,34 +212,27 @@ const VoiceModule = {
                 }
             }
 
-            // Set flag so onstop handler knows NOT to auto-process
-            this._manualStop = true;
-
-            this.mediaRecorder.stop();
-            this.isRecording = false;
-            this.voiceBtn.classList.remove('recording');
-            this.voiceBtn.classList.remove('processing');
-            KaizenApp.isRecording = false;
-
-            // Hide voice indicator overlay
-            this.hideVoiceIndicator();
-
-            // Keep the transcribed text in the input field for the user to review and send
-            const transcribedText = (this.liveTranscript || this.recognitionTranscript).trim();
-            const inputField = document.getElementById('messageInput');
-            if (inputField && transcribedText) {
-                inputField.value = transcribedText;
-                if (typeof ChatModule !== 'undefined' && ChatModule.autoResize) {
-                    ChatModule.autoResize();
-                }
-                // Focus the input so the user can edit or press Enter to send
-                inputField.focus();
-            }
-
-            if (transcribedText) {
-                showToast('Recording stopped. Review your text and click Send.', 'info', 3000);
+            if (this.mediaRecorder) {
+                // Desktop: Stop MediaRecorder, which triggers onstop
+                this._manualStop = true;
+                this.mediaRecorder.stop();
             } else {
-                showToast('No speech detected. Please try again.', 'warning', 3000);
+                // Mobile (SpeechRecognition only): Process the transcribed text
+                const transcribedText = (this.liveTranscript || this.recognitionTranscript).trim();
+                const inputField = document.getElementById('messageInput');
+                
+                if (transcribedText) {
+                    if (inputField) {
+                        inputField.value = transcribedText;
+                        if (typeof ChatModule !== 'undefined' && ChatModule.autoResize) {
+                            ChatModule.autoResize();
+                        }
+                        inputField.focus();
+                    }
+                    showToast('Recording stopped. Review your text and click Send.', 'info', 3000);
+                } else {
+                    showToast('No speech detected. Please try again.', 'warning', 3000);
+                }
             }
         }
     },

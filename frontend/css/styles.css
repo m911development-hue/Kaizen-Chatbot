@@ -1615,6 +1615,11 @@ body {
         left: 1.5rem;
         right: 1.5rem;
     }
+
+    /* Hide redundant avatar in welcome message on mobile to save space */
+    .welcome-avatar {
+        display: none !important;
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
