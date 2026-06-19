@@ -84,24 +84,33 @@ const ChatModule = {
     // ══════════════════════════════════════════════════════════════════════
 
     async sendMessage(text = null) {
-        // If recording is active, auto-stop it and grab transcribed text
+        // If recording is active, stop it and let processRecording (Whisper API) handle the audio upload
         if (typeof VoiceModule !== 'undefined' && VoiceModule.isRecording) {
             // Stop SpeechRecognition
             if (VoiceModule.recognition) {
                 try { VoiceModule.recognition.stop(); } catch (e) {}
             }
-            // Stop MediaRecorder silently (set manual flag to skip processRecording)
-            VoiceModule._manualStop = true;
+            
+            // Just stop the recorder. We do NOT set _manualStop=true 
+            // so the onstop handler WILL trigger processRecording() and upload to Whisper!
             if (VoiceModule.mediaRecorder) {
                 VoiceModule.mediaRecorder.stop();
             }
+            
             VoiceModule.isRecording = false;
             VoiceModule.voiceBtn.classList.remove('recording');
-            VoiceModule.voiceBtn.classList.remove('processing');
             KaizenApp.isRecording = false;
-            VoiceModule.hideVoiceIndicator();
-            // Mark as voice input so response plays as voice too
+            
+            // Mark as voice input
             VoiceModule._pendingVoiceResponse = true;
+            
+            // Clear input immediately so the user sees it's processed
+            this.messageInput.value = '';
+            this.messageInput.style.height = 'auto';
+            this.autoResize();
+            
+            // Return early! The processRecording() flow will handle sending the audio and rendering the response.
+            return;
         }
 
         const message = text || this.messageInput.value.trim();
