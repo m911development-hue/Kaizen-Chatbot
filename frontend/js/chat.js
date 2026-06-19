@@ -84,30 +84,43 @@ const ChatModule = {
     // ══════════════════════════════════════════════════════════════════════
 
     async sendMessage(text = null) {
-        // If recording is active, stop it and let processRecording (Whisper API) handle the audio upload
+        // If recording is active, stop it
         if (typeof VoiceModule !== 'undefined' && VoiceModule.isRecording) {
+            
+            // Extract transcribed text early before stopping for mobile flow
+            const transcribed = (VoiceModule.liveTranscript || VoiceModule.recognitionTranscript || '').trim();
+
             // Stop SpeechRecognition
             if (VoiceModule.recognition) {
                 try { VoiceModule.recognition.stop(); } catch (e) {}
-            }
-            
-            // Just stop the recorder. We do NOT set _manualStop=true 
-            // so the onstop handler WILL trigger processRecording() and upload to Whisper!
-            if (VoiceModule.mediaRecorder) {
-                VoiceModule.mediaRecorder.stop();
             }
             
             VoiceModule.isRecording = false;
             VoiceModule.voiceBtn.classList.remove('recording');
             KaizenApp.isRecording = false;
             
-            // Clear input immediately so the user sees it's processed
-            this.messageInput.value = '';
-            this.messageInput.style.height = 'auto';
-            this.autoResize();
+            // Hide the voice indicator overlay
+            if (typeof VoiceModule.hideVoiceIndicator === 'function') {
+                VoiceModule.hideVoiceIndicator();
+            }
+
+            // Desktop flow (MediaRecorder)
+            if (VoiceModule.mediaRecorder) {
+                // Do NOT set _manualStop=true so the onstop handler triggers processRecording()
+                VoiceModule.mediaRecorder.stop();
+                this.messageInput.value = '';
+                this.messageInput.style.height = 'auto';
+                this.autoResize();
+                return; // Early return because processRecording will handle sending the audio
+            } 
             
-            // Return early! The processRecording() flow will handle sending the audio and rendering the response.
-            return;
+            // Mobile flow (SpeechRecognition only)
+            if (transcribed) {
+                text = transcribed; // Override text parameter and continue with normal send flow
+            } else {
+                this.messageInput.value = '';
+                return; // Nothing to send
+            }
         }
 
         const message = text || this.messageInput.value.trim();
