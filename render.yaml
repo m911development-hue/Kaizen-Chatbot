@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: kaizen-chatbot
+    env: python
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: OPENAI_API_BASE
+        value: "https://openrouter.ai/api/v1"
+      - key: CHAT_MODEL
+        value: "google/gemini-2.5-flash"
+      - key: EMBEDDING_MODEL
+        value: "openai/text-embedding-3-small"
+      - key: TTS_MODEL
+        value: "tts-1-hd"
+      - key: STT_MODEL
+        value: "whisper-1"
+      - key: OPENAI_API_KEY
+        sync: false
