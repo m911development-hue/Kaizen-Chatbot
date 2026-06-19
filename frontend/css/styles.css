@@ -90,7 +90,7 @@ body {
     color: var(--text-primary);
     background: var(--bg-primary);
     overflow: hidden;
-    height: 100vh;
+    height: 100dvh;
     line-height: 1.6;
 }
 
@@ -121,7 +121,7 @@ body {
 .app-container {
     display: grid;
     grid-template-columns: 32% 1fr;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
 }
 
@@ -484,7 +484,7 @@ body {
 .main-area {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     background:
         radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.04) 0%, transparent 60%),
@@ -1544,8 +1544,8 @@ body {
 
     .app-container {
         grid-template-columns: 1fr;
-        grid-template-rows: 180px 1fr; /* Image takes 180px top, rest is chat */
-        height: 100vh;
+        grid-template-rows: 120px 1fr; /* Image takes 120px top, rest is chat */
+        height: 100dvh;
     }
 
     /* Sidebar: displays on top, no longer slide drawer */
@@ -1553,7 +1553,7 @@ body {
         position: relative;
         transform: none !important;
         width: 100% !important;
-        height: 180px !important;
+        height: 120px !important;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
         box-shadow: none !important;
@@ -1588,7 +1588,7 @@ body {
 
     /* Smaller padding and flex fill */
     .main-area {
-        height: calc(100vh - 180px) !important;
+        height: calc(100dvh - 120px) !important;
     }
 
     .messages {
@@ -1622,15 +1622,15 @@ body {
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
     .app-container {
-        grid-template-rows: 150px 1fr; /* even smaller top header on tiny phones */
+        grid-template-rows: 100px 1fr; /* even smaller top header on tiny phones */
     }
 
     .sidebar {
-        height: 150px !important;
+        height: 100px !important;
     }
 
     .main-area {
-        height: calc(100vh - 150px) !important;
+        height: calc(100dvh - 100px) !important;
     }
 
     .sidebar-content-bottom {
