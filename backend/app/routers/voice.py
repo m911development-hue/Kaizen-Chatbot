@@ -54,11 +54,11 @@ async def transcribe_audio(audio: UploadFile = File(...)):
 
 
 # ──────────────────────────────────────────────
-# POST /api/voice/tts
+# POST /api/voice/synthesize
 # ──────────────────────────────────────────────
 
 @router.post(
-    "/tts",
+    "/synthesize",
     summary="Synthesize text into speech audio using Edge TTS",
     responses={400: {"model": ErrorResponse}},
 )
