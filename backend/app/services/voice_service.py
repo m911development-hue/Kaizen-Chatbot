@@ -1,7 +1,7 @@
 """
 Kaizen AI - Voice Service
 ===========================
-Speech-to-Text (Whisper) and Text-to-Speech (Edge TTS)
+Speech-to-Text (Whisper) and Text-to-Speech (TTS-1-HD)
 using the OpenAI Python client directly (not LangChain).
 """
 
@@ -18,9 +18,7 @@ from backend.app.config import settings
 logger = logging.getLogger("kaizen.voice_service")
 
 
-import re
 import edge_tts
-from num2words import num2words
 
 # Singleton instance will be created at the end
 
@@ -84,37 +82,19 @@ class VoiceService:
     async def text_to_speech(self, text: str) -> bytes:
         """
         Convert text to natural-sounding speech using Microsoft Edge TTS.
-        Numbers are converted to English words before synthesis.
+
+        Args:
+            text: The text to synthesize.
+
+        Returns:
+            Raw MP3 audio bytes.
         """
         if not text or not text.strip():
             raise HTTPException(status_code=400, detail="Text for synthesis cannot be empty.")
 
         try:
-            # --- ONLY CHANGE: Convert numbers to English words ---
-            def _to_words(match: re.Match) -> str:
-                raw = match.group(0).replace(",", "")
-                try:
-                    num = float(raw) if "." in raw else int(raw)
-                    return num2words(num, lang="en")
-                except Exception:
-                    return match.group(0)
-
-            text_fixed = re.sub(r"\d[\d,.]*", _to_words, text)
-            # ------------------------------------------------------
-
-            escaped_text = (
-                text_fixed.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-            )
-
-            ssml = (
-                f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" '
-                f'xml:lang="en-IN">{escaped_text}</speak>'
-            )
-
             # The user requested to increase the voice speed by 0.2 (20%)
-            communicate = edge_tts.Communicate(ssml, self.tts_voice, rate="+20%")
+            communicate = edge_tts.Communicate(text, self.tts_voice, rate="+20%")
             
             audio_data = bytearray()
             async for chunk in communicate.stream():
