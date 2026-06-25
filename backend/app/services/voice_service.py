@@ -8,7 +8,10 @@ using the OpenAI Python client directly (not LangChain).
 import os
 import tempfile
 import logging
+import re
 from pathlib import Path
+
+from num2words import num2words
 
 from openai import AsyncOpenAI
 from fastapi import UploadFile, HTTPException
@@ -79,6 +82,42 @@ class VoiceService:
     #  Text-to-Speech (Edge TTS)                                          #
     # ------------------------------------------------------------------ #
 
+    def _normalize_text_for_english(self, text: str) -> str:
+        """
+        Converts numbers in text to their English word equivalents.
+        Handles standard numbers, currencies, percentages, and years.
+        This prevents bilingual TTS models (like en-IN) from defaulting to Hindi pronunciation.
+        """
+        if not text:
+            return text
+            
+        # Replace rupees
+        text = re.sub(r'₹\s*([0-9,.]+)', r'\1 rupees', text)
+        # Replace dollars
+        text = re.sub(r'\$\s*([0-9,.]+)', r'\1 dollars', text)
+        # Replace percentages
+        text = re.sub(r'([0-9,.]+)\s*%', r'\1 percent', text)
+
+        def replace_num(match):
+            num_str = match.group(0).replace(',', '')
+            try:
+                # Simple heuristic for years
+                if len(num_str) == 4 and num_str.isdigit() and 1900 <= int(num_str) <= 2099:
+                    return num2words(int(num_str), to='year')
+                
+                # General numbers
+                if '.' in num_str:
+                    return num2words(float(num_str))
+                else:
+                    return num2words(int(num_str))
+            except:
+                return match.group(0)
+
+        # Find all standalone numbers or numbers with commas/decimals
+        normalized = re.sub(r'\b\d{1,3}(?:,\d{3})*(?:\.\d+)?\b|\b\d+(?:\.\d+)?\b', replace_num, text)
+        
+        return normalized
+
     async def text_to_speech(self, text: str) -> bytes:
         """
         Convert text to natural-sounding speech using Microsoft Edge TTS.
@@ -93,8 +132,11 @@ class VoiceService:
             raise HTTPException(status_code=400, detail="Text for synthesis cannot be empty.")
 
         try:
+            # Normalize the text so the TTS doesn't fall back to Hindi for digits
+            normalized_text = self._normalize_text_for_english(text)
+            
             # The user requested to increase the voice speed by 0.2 (20%)
-            communicate = edge_tts.Communicate(text, self.tts_voice, rate="+20%")
+            communicate = edge_tts.Communicate(normalized_text, self.tts_voice, rate="+20%")
             
             audio_data = bytearray()
             async for chunk in communicate.stream():

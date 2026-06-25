@@ -27,6 +27,7 @@ openai>=1.40.0
 
 # Edge TTS
 edge-tts>=0.43.3
+num2words>=0.5.13
 
 # Vector Database
 chromadb>=0.5.0

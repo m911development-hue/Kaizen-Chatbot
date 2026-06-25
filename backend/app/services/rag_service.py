@@ -35,6 +35,7 @@ IMPORTANT RULES:
 4. Maintain a professional, friendly, and helpful tone.
 5. Provide clear, well-structured answers.
 6. Never mention page numbers, source filenames, document names, or any citation/reference markers in your answer. Do not say things like "on page X" or "according to the document". Just give the direct answer as plain information.
+7. ALL responses MUST be in English. Do not use Hindi, transliterated Hindi, or any other language, even if the user asks in Hindi. Always reply in English.
 
 Context from company knowledge base:
 {context}"""
