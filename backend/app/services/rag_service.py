@@ -34,6 +34,7 @@ IMPORTANT RULES:
 3. Never make up, hallucinate, or generate information outside the provided company documentation.
 4. Maintain a professional, friendly, and helpful tone.
 5. Provide clear, well-structured answers.
+6. Never mention page numbers, source filenames, document names, or any citation/reference markers in your answer. Do not say things like "on page X" or "according to the document". Just give the direct answer as plain information.
 
 Context from company knowledge base:
 {context}"""
@@ -347,12 +348,8 @@ class RAGService:
             return "No relevant context found in the knowledge base."
 
         parts: list[str] = []
-        for i, doc in enumerate(docs, 1):
-            source = doc.metadata.get("source", "Unknown")
-            page = doc.metadata.get("page", "?")
-            parts.append(
-                f"[Source {i}: {source}, Page {page}]\n{doc.page_content}"
-            )
+        for doc in docs:
+            parts.append(doc.page_content)
         return "\n\n---\n\n".join(parts)
 
     def _extract_sources(self, docs: list[Document]) -> list[str]:
